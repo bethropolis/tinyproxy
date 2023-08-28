@@ -5,7 +5,7 @@ require "error.php";
 
 class ProxyService
 {
-    private $allowedOrigins = ['http://localhost']; // Add your allowed origins
+    private $allowedOrigins = ['']; // Add your allowed origins
     private $cache;
     private $logger;
 
@@ -17,7 +17,7 @@ class ProxyService
 
     public function proxyRequest($targetUrl)
     {
-        header('Content-type: text/plain');
+        $useCache = !isset($_GET['cache']) || $_GET['cache'] === 'true';
         // Validate input URL
         if (!$this->isValidUrl($targetUrl)) {
             $this->logError("Invalid URL: $targetUrl");
@@ -39,19 +39,23 @@ class ProxyService
         $cacheKey = md5($targetUrl);
         $cachedContentExists = $this->cache->has($cacheKey);
 
-        if ($cachedContentExists) {
+        if ($cachedContentExists && $useCache) {
+            print_r("Cache hit: $cacheKey");
             echo $this->cache->get($cacheKey);
         } else {
             $client = new GuzzleHttp\Client();
             try {
                 $response = $client->get($targetUrl);
-                $content = $response->getBody();
 
-                // Cache the response
-                $this->cache->set($cacheKey, $content);
+                header("Content-Type: {$response->getHeaderLine('Content-Type')}");
+
+                $content = $response->getBody();
+                if ($useCache) {
+                    $this->cache->set($cacheKey, $content);
+                }
 
                 echo $content;
-            } catch (Exception $e) {
+            } catch (GuzzleHttp\Exception\RequestException $e) {
                 $this->logError("Request failed: " . $e->getMessage());
                 http_response_code(500); // Internal Server Error
                 echo "An error occurred";
