@@ -20,6 +20,12 @@ composer install
 php -S localhost:8080
 ```
 
+using docker:
+```
+docker build -t tinyproxy .
+docker run -p 8080:80 --name tinyproxy-container tinyproxy
+```
+
 ## Usage
 
 To use TinyProxy, simply make requests to the proxy URL with the `url` parameter:

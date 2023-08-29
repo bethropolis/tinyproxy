@@ -1,16 +1,22 @@
 <?php
 header('Access-Control-Allow-Origin: *');
-// content type default plin text
-
-
 
 require 'proxy.php';
-if (!isset($_GET['url'])) {
-    @include('public/home.php');
+
+
+if (isset($_GET["search"])) {
+    @include('public/search.php');
     exit;
 }
 
-$proxy = new ProxyService();
-$proxy->proxyRequest($_GET['url']);
-?>
+if (isset($_GET['url'])) {
+    $proxy = new ProxyService();
+    $targetUrl = urldecode($_GET['url']);
+    $proxy->proxyRequest($targetUrl);
+    exit;
+}
 
+
+
+@include('public/home.php');
+exit;
