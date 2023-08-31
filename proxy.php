@@ -7,19 +7,19 @@ require 'html-modifier.php'; // Include the HtmlModifier class
 
 class ProxyService
 {
-    private $allowedOrigins = ['*']; // Add your allowed origins
+    private $currentHost;
+    private $allowedOrigins;
     private $cache;
     private $logger;
-    private  $cachableTypes = [
-        'text/javascript',
-        'text/css',
-        'text/html',
-        'application/json',
-        'text/plain'
-    ];
+    private $cacheImages;
+    private $cachableTypes;
 
     public function __construct()
     {
+        $this->cachableTypes = CACHABLE_TYPES;
+        $this->cacheImages = CACHE_IMAGES;
+        $this->allowedOrigins = PROXY_ALLOWED_ORIGINS;
+        $this->currentHost = PROXY_HOST;
         $this->cache = new Cache();
         $this->logger = new Logger();
         // $this->cache->clearCache();
@@ -60,10 +60,9 @@ class ProxyService
         return $this->isValidUrl($targetUrl);
     }
 
-
     private function isAllowedOrigin()
     {
-        if(in_array("*", $this->allowedOrigins)){
+        if (in_array("*", $this->allowedOrigins)) {
             return true;
         }
 
@@ -76,62 +75,108 @@ class ProxyService
         return true;
     }
 
+    private function cspHeader()
+    {
+        if (PROXY_USE_CSP) {
+            header("Content-Security-Policy: script-src 'self' {$this->currentHost};");
+        }
+    }
+
     private function handleProxyRequest($targetUrl, $useCache)
     {
         $cacheKey = md5($targetUrl);
         $cachedContentExists = $this->cache->has($cacheKey);
 
+        $this->cspHeader();
+
         if ($cachedContentExists && $useCache) {
-            $cachedData = $this->cache->get($cacheKey);
-            $cachedData = json_decode($cachedData, true);
-            $cachedContent = $cachedData['content'];
-            $cachedContentType  = $cachedData['content_type'];
-            header("Content-Type: {$cachedContentType}");
-            echo $cachedContent;
-            return;
+            $this->serveCachedContent($cacheKey);
         } else {
-            $client = new GuzzleHttp\Client();
-            try {
-                $response = $client->get($targetUrl);
+            $this->fetchAndProcessContent($targetUrl, $cacheKey);
+        }
+    }
 
-                $contentType = $response->getHeaderLine('Content-Type');
-                header("Content-Type: {$contentType}");
+    private function serveCachedContent($cacheKey)
+    {
+        $cachedData = $this->cache->get($cacheKey);
+        $cachedData = json_decode($cachedData, true);
+        $cachedContent = $cachedData['content'];
+        $cachedContentType = $cachedData['content_type'];
+        header("Content-Type: {$cachedContentType}");
+        print_r($cachedContent);
+    }
 
-                $content = $response->getBody();
+    private function fetchAndProcessContent($targetUrl, $cacheKey)
+    {
+        $client = new GuzzleHttp\Client();
+        try {
+            $response = $client->get($targetUrl);
+            $contentType = $response->getHeaderLine('Content-Type');
+            header("Content-Type: {$contentType}");
+            $content = $response->getBody();
 
-                // Extract the content type without charset
-                $contentTypeParts = explode(';', $contentType);
-                $cleanedContentType = trim($contentTypeParts[0]);
+            $contentTypeParts = explode(';', $contentType);
+            $cleanedContentType = trim($contentTypeParts[0]);
 
-                if (in_array($cleanedContentType, $this->cachableTypes)) {
-                    if (strpos($cleanedContentType, 'text/html') !== false) {
-                        $baseProxyUrl = $targetUrl;
-                        $baseProxyUrl = strtok($baseProxyUrl, '?');
-                        $htmlContent = $content->getContents();
-                        $modifiedHtml = HtmlModifier::modifyRelativeUrls($htmlContent, $baseProxyUrl);
-                        $content = $modifiedHtml;
-                    } elseif (strpos($cleanedContentType, 'text/css') !== false) {
-                        // Modify CSS content if it's a CSS file
-                        $cssContent = $content->getContents();
-                        $modifiedCssContent = CssModifier::modifyUrls($cssContent, $targetUrl);
-                        $content = $modifiedCssContent;
-                    }
-
-                    $this->cache->set($cacheKey, [
-                        'content' => $content,
-                        "content_type" => $contentType
-                    ]);
-                }else{
-                    // put a cache header for 1hr 
-                    header("Cache-Control: max-age=3600");
+            if (in_array($cleanedContentType, $this->cachableTypes)) {
+                if (strpos($cleanedContentType, 'text/html') !== false) {
+                    $content = $this->processHtmlContent($content, $targetUrl, $cacheKey);
+                } elseif (strpos($cleanedContentType, 'text/css') !== false) {
+                    $content = $this->processCssContent($content, $targetUrl, $cacheKey);
+                }
+            } else {
+                if (strpos($cleanedContentType, 'image/') === 0 && $this->cacheImages) {
+                    $this->cacheImageContent($response, $content, $cacheKey);
                 }
 
-                echo $content;
-            } catch (GuzzleHttp\Exception\RequestException $e) {
-                $this->logError("Request failed: " . $e->getMessage());
-                http_response_code(500); // Internal Server Error
-                echo "An error occurred";
+                header("Cache-Control: max-age=" . CACHE_MAX_AGE_HEADER);
             }
+
+            echo $content;
+        } catch (GuzzleHttp\Exception\RequestException $e) {
+            $this->logError("Request failed: " . $e->getMessage());
+            http_response_code(500); // Internal Server Error
+            echo "An error occurred";
+        }
+    }
+
+    private function processHtmlContent($content, $targetUrl, $cacheKey)
+    {
+        $baseProxyUrl = $targetUrl;
+        $baseProxyUrl = strtok($baseProxyUrl, '?');
+        $htmlContent = $content->getContents();
+        $modifiedHtml = HtmlModifier::modifyRelativeUrls($htmlContent, $baseProxyUrl);
+        $modifiedHtml = HtmlModifier::addTopBar($modifiedHtml);
+
+        $this->cache->set($cacheKey, [
+            'content' => $modifiedHtml,
+            'content_type' => 'text/html'
+        ]);
+        return $modifiedHtml;
+    }
+
+    private function processCssContent($content, $targetUrl, $cacheKey)
+    {
+        $cssContent = $content->getContents();
+        $modifiedCssContent = CssModifier::modifyUrls($cssContent, $targetUrl);
+        $this->cache->set($cacheKey, [
+            'content' => $modifiedCssContent,
+            'content_type' => 'text/css'
+        ]);
+        return $modifiedCssContent;
+    }
+
+    private function cacheImageContent($response, $content, $cacheKey)
+    {
+        $contentLength = $response->getHeaderLine('Content-Length');
+        $contentLengthBytes = intval($contentLength);
+
+        if ($contentLengthBytes <= CACHE_MAX_SIZE) {
+            $base64ImageData = base64_encode($content);
+            $this->cache->set($cacheKey, [
+                'content' => $base64ImageData,
+                'content_type' => $response->getHeaderLine('Content-Type')
+            ]);
         }
     }
 

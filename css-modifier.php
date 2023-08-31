@@ -4,6 +4,7 @@ class CssModifier
 {
     public static function convertRelativeToAbsolute($baseUrl, $relativeUrl)
     {
+
         if (strpos($relativeUrl, '//') === 0) {
             // Prepend "http:" to the URL with double slashes
             $relativeUrl = 'http:' . $relativeUrl;
@@ -22,6 +23,10 @@ class CssModifier
 
     public static function modifyUrls($cssContent, $baseProxyUrl)
     {
+        if(!CSS_MODIFIER_ENABLED) {
+            return $cssContent;
+        }
+
         // Regular expression pattern to match URLs within url() functions
         $pattern = '/url\([\'"]?(.*?)[\'"]?\)/i';
 
@@ -29,7 +34,7 @@ class CssModifier
         $modifiedCssContent = preg_replace_callback($pattern, function ($matches) use ($baseProxyUrl) {
             $url = $matches[1];
             $modifiedUrl = self::convertRelativeToAbsolute($baseProxyUrl, $url);
-            $modifiedUrl = self::getBaseProxyUrl() . "?url=" . urlencode($modifiedUrl);
+            $modifiedUrl = self::getBaseProxyUrl() . "?".PROXY_URL_QUERY_KEY."=" . urlencode($modifiedUrl);
             return "url('$modifiedUrl')";
         }, $cssContent);
 
@@ -38,8 +43,7 @@ class CssModifier
 
     private static function getBaseProxyUrl()
     {
-        $currentUrl = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $baseProxyUrl = strtok($currentUrl, '?');
+        $baseProxyUrl = strtok(PROXY_CURRENT_URL, '?');
         return $baseProxyUrl;
     }
 }

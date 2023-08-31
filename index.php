@@ -1,22 +1,21 @@
 <?php
 header('Access-Control-Allow-Origin: *');
 
-require 'proxy.php';
+require __DIR__ ."/config.php";
+require  __DIR__."/proxy.php";
 
 
-if (isset($_GET["search"])) {
-    @include('public/search.php');
+if (isset($_GET["about"])) {
+    @include('public/home.php');
     exit;
 }
 
-if (isset($_GET['url'])) {
+if (isset($_GET[PROXY_URL_QUERY_KEY]) && PROXY_ENABLED) {
     $proxy = new ProxyService();
-    $targetUrl = urldecode($_GET['url']);
+    $targetUrl = urldecode($_GET[PROXY_URL_QUERY_KEY]);
     $proxy->proxyRequest($targetUrl);
     exit;
 }
 
-
-
-@include('public/home.php');
+@include('public/search.php');
 exit;
