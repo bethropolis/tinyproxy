@@ -1,10 +1,4 @@
-<?php
 
-
-$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-
-$server_url = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -92,7 +86,7 @@ $server_url = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'
       <h2>How to Use:</h2>
       <ol>
         <li>
-          Visit <code><?= $server_url ?>?url=[target_url]</code>
+          Visit <code><?= PROXY_REQUEST_URL ?>[target_url]</code>
         </li>
         <li>
           Replace <code>[target_url]</code> with the URL you want to fetch and
@@ -105,7 +99,7 @@ $server_url = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'
       </ol>
       <p>
         For example:
-        <a href="<?= $server_url ?>?url=https://www.example.com"><?= $server_url ?>?url=https://www.example.com</a>
+        <a href="<?= PROXY_REQUEST_URL ?>https://www.example.com"><?= PROXY_REQUEST_URL ?>https://www.example.com</a>
       </p>
       <p>
         Find the source code on

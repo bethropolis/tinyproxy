@@ -2,8 +2,14 @@
 
 class Cache
 {
-    private $cacheDirectory = 'cache/';
-    private $cacheDuration = 3600; // Cache duration in seconds (1 hour)
+    private $cacheDirectory;
+    private $cacheDuration;
+
+    public function __construct()
+    {
+        $this->cacheDirectory = CACHE_DIRECTORY;
+        $this->cacheDuration = CACHE_DURATION;
+    }
 
     public function has($key)
     {
@@ -13,7 +19,7 @@ class Cache
 
     public function get($key)
     {
-        if ($this->has($key)) {
+        if ($this->has($key) && $this->isCacheEnabled()) {
             $filePath = $this->cacheDirectory . $key;
             return file_get_contents($filePath);
         }
@@ -22,6 +28,8 @@ class Cache
 
     public function set($key, $content)
     {
+        if (!$this->isCacheEnabled()) return;
+
         $content = json_encode($content);
         $filePath = $this->getFilePath($key);
         $this->createDirectory(dirname($filePath));
@@ -43,6 +51,11 @@ class Cache
     private function writeToFile($filePath, $content)
     {
         file_put_contents($filePath, $content);
+    }
+
+    private function isCacheEnabled()
+    {
+        return CACHE_ENABLED;
     }
 
     public function clearCache()

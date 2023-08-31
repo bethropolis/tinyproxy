@@ -4,16 +4,24 @@ class HtmlModifier
 {
     public static function modifyRelativeUrls($htmlContent, $baseProxyUrl)
     {
+        if (!HTML_MODIFIER_ENABLED) {
+            return $htmlContent;
+        }
+
+        if (empty($htmlContent)) {
+            return;
+        }
+
         $dom = new DOMDocument();
         @$dom->loadHTML($htmlContent); // Suppress warnings
 
         $elements = $dom->getElementsByTagName('*');
         foreach ($elements as $element) {
-            foreach (['href', 'src', 'action'] as $attribute) {
+            foreach (HTML_MODIFIER_URL_ATTRIBUTES as $attribute) {
                 $url = $element->getAttribute($attribute);
                 if (!empty($url)) {
                     $absoluteUrl = self::convertRelativeToAbsolute($baseProxyUrl, $url);
-                    $newUrl = self::getBaseProxyUrl() . "?url=" . urlencode($absoluteUrl);
+                    $newUrl = self::getBaseProxyUrl() . "?" . PROXY_URL_QUERY_KEY . "=" . urlencode($absoluteUrl);
                     $element->setAttribute($attribute, $newUrl);
                 }
             }
@@ -36,7 +44,25 @@ class HtmlModifier
             $styleTag->nodeValue = $modifiedCss;
         }
 
+
+
+
         return $dom->saveHTML();
+    }
+
+
+    public static function addTopBar($htmlContent)
+    {
+        $topBar = '
+            <div style="background-color: #f0f0f0; padding: 5px; text-align: center; z-index: 1000; height: fit-content !important; width: 100%; position: sticky; top: 0;">
+                <form action="' . $_SERVER['PHP_SELF']. '" method="get" style="margin: 5px 0 !important; ">
+                    <input type="text" name="url" value="'. urldecode($_GET[PROXY_URL_QUERY_KEY]) .'" placeholder="enter url..." style="margin: 0 !important; width: 70%;border: 1px solid #ccc; padding: 5px;">
+                    <button type="submit" style="padding: 5px 20px; background-color: #0070f3; color: white; border: none; cursor: pointer;">Go</button>
+                </form>
+            </div>
+        ';
+
+        return $topBar . $htmlContent;
     }
 
     private static function modifySrcsetUrls($baseProxyUrl, $srcset)
@@ -50,7 +76,7 @@ class HtmlModifier
                 $imageUrl = trim($urlParts[0]);
                 $imageSize = trim($urlParts[1]);
                 $absoluteImageUrl = self::convertRelativeToAbsolute($baseProxyUrl, $imageUrl);
-                $newImageUrl = self::getBaseProxyUrl() . "?url=" . urlencode($absoluteImageUrl);
+                $newImageUrl = self::getBaseProxyUrl() . "?" . PROXY_URL_QUERY_KEY . "=" . urlencode($absoluteImageUrl);
                 $modifiedUrls[] = "{$newImageUrl} {$imageSize}";
             }
         }
@@ -77,7 +103,7 @@ class HtmlModifier
                 // Relative path starts with '/', consider it from the root
                 $absolutePath = $relativePath;
             } else {
-               
+
 
                 $basePathParts = explode('/', $parsedBaseUrl['path'] ?? "");
                 $relativePathParts = explode('/', $relativePath);
@@ -115,8 +141,7 @@ class HtmlModifier
 
     private static function getBaseProxyUrl()
     {
-        $currentUrl = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-        $baseProxyUrl = strtok($currentUrl, '?');
+        $baseProxyUrl = strtok(PROXY_CURRENT_URL, '?');
         return $baseProxyUrl;
     }
 }
