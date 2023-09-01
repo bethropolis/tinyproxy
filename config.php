@@ -62,10 +62,16 @@ if(!defined('HTML_MODIFIER_USE_CSP'))  define('HTML_MODIFIER_USE_CSP', true);
 
 
 
-
 // error settings
 if (!defined('ERROR_LOG_ENABLED'))  define('ERROR_LOG_ENABLED', true);
 
-if (!defined('ERROR_LOG_DIRECTORY'))  define('ERROR_LOG_DIRECTORY', 'errors/');
+if (!defined('ERROR_LOG_DIRECTORY'))  define('ERROR_LOG_DIRECTORY', 'log/');
 
-if (!defined('ERROR_LOG_FILE'))  define('ERROR_LOG_FILE', 'error_log.txt');
+if (!defined('ERROR_LOG_FILE'))  define('ERROR_LOG_FILE', 'error.log.txt');
+
+// debug settings
+if(!defined("DEBUG_ENABLED"))  define("DEBUG_ENABLED", true);
+
+if(!defined("DEBUG_DIRECTORY"))  define("DEBUG_DIRECTORY", "log/");
+
+if(!defined("DEBUG_FILE"))  define("DEBUG_FILE", "debug.log.txt");
