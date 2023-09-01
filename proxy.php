@@ -5,6 +5,9 @@ require 'error.php';
 require "css-modifier.php"; // Include the CssModifier class
 require 'html-modifier.php'; // Include the HtmlModifier class
 
+if (DEBUG_ENABLED) require 'debug.php';
+
+
 class ProxyService
 {
     private $currentHost;
@@ -103,6 +106,9 @@ class ProxyService
         $cachedContent = $cachedData['content'];
         $cachedContentType = $cachedData['content_type'];
         header("Content-Type: {$cachedContentType}");
+        if(strpos($cachedContentType, 'image/') === 0){
+            $cachedContent = base64_decode($cachedContent);
+        }
         print_r($cachedContent);
     }
 
