@@ -56,7 +56,7 @@ class HtmlModifier
         $topBar = '
             <div style="background-color: #f0f0f0; padding: 5px; text-align: center; z-index: 1000; height: fit-content !important; width: 100%; position: sticky; top: 0;">
                 <form action="' . $_SERVER['PHP_SELF']. '" method="get" style="margin: 5px 0 !important; ">
-                    <input type="text" name="url" value="'. urldecode($_GET[PROXY_URL_QUERY_KEY]) .'" placeholder="enter url..." style="margin: 0 !important; width: 70%;border: 1px solid #ccc; padding: 5px;">
+                    <input type="url" name="url" value="'. urldecode($_GET[PROXY_URL_QUERY_KEY]) .'" placeholder="enter url..." style="margin: 0 !important; width: 70%;border: 1px solid #ccc; padding: 5px;" required>
                     <button type="submit" style="padding: 5px 20px; background-color: #0070f3; color: white; border: none; cursor: pointer;">Go</button>
                 </form>
             </div>
