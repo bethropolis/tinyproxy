@@ -1,17 +1,17 @@
 <?php
 
-$baseProxyUrl = "?".PROXY_URL_QUERY_KEY."=";
+$baseProxyUrl = "?" . PROXY_URL_QUERY_KEY . "=";
 
 $popularSites = [
     [
         'label' => 'Wikipedia',
-        'logo' => 'https%3A%2F%2Fwww.wikipedia.org%2Fportal%2Fwikipedia.org%2Fassets%2Fimg%2FWikipedia-logo-v2.png',
+        'logo' => './public/asserts/wikipedia.svg',
         'url' => 'https://www.wikipedia.org'
     ],
     [
-        'label' => 'Wikipedia',
-        'logo' => 'https%3A%2F%2Fwww.wikipedia.org%2Fportal%2Fwikipedia.org%2Fassets%2Fimg%2FWikipedia-logo-v2.png',
-        'url' => 'https://www.wikipedia.org'
+        'label' => 'Fandom',
+        'logo' => './public/asserts/fandom.svg',
+        'url' => 'https://www.fandom.com'
     ],
     [
         'label' => 'Wikipedia',
@@ -36,7 +36,7 @@ $popularSites = [
 ];
 
 
-if(!PROXY_ENABLED){
+if (!PROXY_ENABLED) {
     echo "<span style='color:red'>Proxy service is disabled.</span>";
     exit;
 }
@@ -58,15 +58,18 @@ if(!PROXY_ENABLED){
         <header>
             <nav>
                 <ul>
-                    <li><a href="?about">About</a></li>
-                    <!-- Add more navigation links here -->
-                    <li><a href="https://github.com/bethropolis/tinyproxy" target="_blank">GitHub</a></li>
+                    <div class="logo">tiny<span style="color: #0070f3;">Proxy</span></div>
+                    <div class="side-items">
+                        <li><a href="?about">About</a></li>
+                        <!-- Add more navigation links here -->
+                        <li><a href="https://github.com/bethropolis/tinyproxy" target="_blank">GitHub</a></li>
+                    </div>
                 </ul>
             </nav>
         </header>
         <div class="search">
             <form action="<?= $_SERVER['PHP_SELF'] ?>" method="get">
-                <input type="text" name="<?= PROXY_URL_QUERY_KEY?>" id="search" placeholder="Search for URLs..." />
+                <input type="text" name="<?= PROXY_URL_QUERY_KEY ?>" id="search" placeholder="Search for URLs..." />
                 <button type="submit">Search</button>
             </form>
         </div>
@@ -120,7 +123,7 @@ if(!PROXY_ENABLED){
         }
 
         function redirectToProxy(url) {
-            window.location.href = `?<?= PROXY_URL_QUERY_KEY?>=${encodeURIComponent(url)}`;
+            window.location.href = `?<?= PROXY_URL_QUERY_KEY ?>=${encodeURIComponent(url)}`;
         }
     </script>
 </body>
