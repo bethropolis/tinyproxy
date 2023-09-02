@@ -2,6 +2,12 @@
 
 tinyproxy is a lightweight PHP proxy service with caching for fetching and serving web resources.
 
+screenshots:
+![Screenshot 2023-09-03 00 00 25](https://github.com/bethropolis/tinyproxy/assets/66518866/7acd4764-25a7-407e-967e-d193d8165672)
+
+![Screenshot 2023-09-03 00 06 26](https://github.com/bethropolis/tinyproxy/assets/66518866/1fef1996-e96e-41f1-95dd-7f7eae89ce1c)
+
+
 ## Installation
 
 1. Clone this repository to your web server:
@@ -18,6 +24,13 @@ composer install
 3. Run the TinyProxy service:
 ```
 php -S localhost:8080
+```
+> I recommend using an `apache` server or `nginx` server.
+
+using docker:
+```
+docker build -t tinyproxy .
+docker run -p 8080:80 --name tinyproxy-container tinyproxy
 ```
 
 ## Usage
