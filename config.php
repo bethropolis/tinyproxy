@@ -70,7 +70,7 @@ if (!defined('ERROR_LOG_DIRECTORY'))  define('ERROR_LOG_DIRECTORY', 'log/');
 if (!defined('ERROR_LOG_FILE'))  define('ERROR_LOG_FILE', 'error.log.txt');
 
 // debug settings
-if(!defined("DEBUG_ENABLED"))  define("DEBUG_ENABLED", true);
+if(!defined("DEBUG_ENABLED"))  define("DEBUG_ENABLED", false);
 
 if(!defined("DEBUG_DIRECTORY"))  define("DEBUG_DIRECTORY", "log/");
 
