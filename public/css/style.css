@@ -155,3 +155,14 @@ nav ul div  li a:hover {
     font-size: 1.12rem;
     color: #455a64;
 }
+
+.footer-tag{
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    bottom: 10px;
+}
+.footer-tag a{
+    text-decoration: none;
+    color: #0070f3;
+}

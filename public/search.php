@@ -12,26 +12,6 @@ $popularSites = [
         'label' => 'Fandom',
         'logo' => './public/asserts/fandom.svg',
         'url' => 'https://www.fandom.com'
-    ],
-    [
-        'label' => 'Wikipedia',
-        'logo' => 'https%3A%2F%2Fwww.wikipedia.org%2Fportal%2Fwikipedia.org%2Fassets%2Fimg%2FWikipedia-logo-v2.png',
-        'url' => 'https://www.wikipedia.org'
-    ],
-    [
-        'label' => 'Wikipedia',
-        'logo' => 'https%3A%2F%2Fwww.wikipedia.org%2Fportal%2Fwikipedia.org%2Fassets%2Fimg%2FWikipedia-logo-v2.png',
-        'url' => 'https://www.wikipedia.org'
-    ],
-    [
-        'label' => 'Wikipedia',
-        'logo' => 'https%3A%2F%2Fwww.wikipedia.org%2Fportal%2Fwikipedia.org%2Fassets%2Fimg%2FWikipedia-logo-v2.png',
-        'url' => 'https://www.wikipedia.org'
-    ],
-    [
-        'label' => 'Wikipedia',
-        'logo' => 'https%3A%2F%2Fwww.wikipedia.org%2Fportal%2Fwikipedia.org%2Fassets%2Fimg%2FWikipedia-logo-v2.png',
-        'url' => 'https://www.wikipedia.org'
     ]
 ];
 
@@ -85,6 +65,8 @@ if (!PROXY_ENABLED) {
             <?php endforeach; ?>
         </div>
     </div>
+
+    <p class="footer-tag">made with 💙 by  <a href="http://github.com/bethropolis" target="_blank" rel="noopener noreferrer">bethropolis</a></p>
     <script>
         // autocomplete.js
         const searchInput = document.getElementById("search");
