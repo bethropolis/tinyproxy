@@ -47,10 +47,11 @@ $ curl http://localhost:8080/?url=https://www.example.com
 > replace `localhost:8080` with  your web server's address.
 
 #### parameters
-  | parameter | description   | type  |
-  | --------- | ------------- |-------|
-  | `url` | The URL to proxy. |string |
-  | `cache` | The cache directory. |bool|
+
+| parameter | description   | type  |
+| --------- | ------------- |-------|
+| `url` | The URL to proxy. |string |
+| `cache` | The cache directory. |bool|
 
 ## Contributing
 
