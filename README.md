@@ -53,6 +53,10 @@ $ curl http://localhost:8080/?url=https://www.example.com
 | `url` | The URL to proxy. |string |
 | `cache` | The cache directory. |bool|
 
+
+> for more customization edit the `config.php` file.
+
+
 ## Contributing
 
 Contributions are welcome! If you find a bug or have an enhancement idea, please open an issue or submit a pull request.
