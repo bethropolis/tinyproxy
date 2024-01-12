@@ -2,6 +2,8 @@
 
 class CssModifier
 {
+    public static $modify = true;
+
     public static function convertRelativeToAbsolute($baseUrl, $relativeUrl)
     {
         if (strpos($relativeUrl, '//') === 0) {
@@ -26,7 +28,7 @@ class CssModifier
 
     public static function modifyUrls($cssContent, $baseProxyUrl)
     {
-        if (!CSS_MODIFIER_ENABLED) {
+        if (!self::$modify || !CSS_MODIFIER_ENABLED) {
             return $cssContent;
         }
 
@@ -48,5 +50,8 @@ class CssModifier
     {
         $baseProxyUrl = strtok(PROXY_CURRENT_URL, '?');
         return $baseProxyUrl;
+    }
+    public static function setModify($modify){
+        self::$modify = $modify;
     }
 }

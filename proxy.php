@@ -25,7 +25,10 @@ class ProxyService
         $this->currentHost = PROXY_HOST;
         $this->cache = new Cache();
         $this->logger = new Logger();
+        $this->modify = isset($_GET[MODIFY_CONTENT])? filter_var($_GET[MODIFY_CONTENT], FILTER_VALIDATE_BOOLEAN) : true;
         // $this->cache->clearCache();
+
+
     }
 
     public function proxyRequest($targetUrl)
@@ -148,6 +151,7 @@ class ProxyService
 
     private function processHtmlContent($content, $targetUrl, $cacheKey)
     {
+        HtmlModifier::setModify($this->modify);
         $baseProxyUrl = $targetUrl;
         $baseProxyUrl = strtok($baseProxyUrl, '?');
         $htmlContent = $content->getContents();
@@ -163,6 +167,7 @@ class ProxyService
 
     private function processCssContent($content, $targetUrl, $cacheKey)
     {
+        CssModifier::setModify($this->modify);
         $cssContent = $content->getContents();
         $modifiedCssContent = CssModifier::modifyUrls($cssContent, $targetUrl);
         $this->cache->set($cacheKey, [
