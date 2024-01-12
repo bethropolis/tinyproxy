@@ -26,6 +26,10 @@ if (!defined('PROXY_REQUEST_URL'))  define('PROXY_REQUEST_URL', PROXY_BASE_URL .
 if(!defined('PROXY_CURRENT_URL'))  define('PROXY_CURRENT_URL', PROXY_URL. $_SERVER['REQUEST_URI']);
 
 
+// params
+if (!defined('MODIFY_CONTENT'))  define('MODIFY_CONTENT', "modify");
+
+
 // cache settings
 if (!defined('CACHE_ENABLED'))  define('CACHE_ENABLED', true);
 

@@ -2,9 +2,11 @@
 
 class HtmlModifier
 {
+    public static $modify = true;
+
     public static function modifyRelativeUrls($htmlContent, $baseProxyUrl)
     {
-        if (!HTML_MODIFIER_ENABLED) {
+        if (!self::$modify || !HTML_MODIFIER_ENABLED) {
             return $htmlContent;
         }
 
@@ -53,6 +55,11 @@ class HtmlModifier
 
     public static function addTopBar($htmlContent)
     {
+        if (!self::$modify) {
+            return $htmlContent;
+        }
+
+
         $topBar = '
             <div style="background-color: #f0f0f0; padding: 5px; text-align: center; z-index: 1000; height: fit-content !important; width: 100%; position: sticky; top: 0;">
                 <form action="' . $_SERVER['PHP_SELF']. '" method="get" style="margin: 5px 0 !important; ">
@@ -143,5 +150,9 @@ class HtmlModifier
     {
         $baseProxyUrl = strtok(PROXY_CURRENT_URL, '?');
         return $baseProxyUrl;
+    }
+
+    public static function setModify($modify){
+        self::$modify = $modify;
     }
 }
