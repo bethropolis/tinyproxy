@@ -132,7 +132,14 @@ class ProxyService
                     $content = $this->processHtmlContent($content, $targetUrl, $cacheKey);
                 } elseif (strpos($cleanedContentType, 'text/css') !== false) {
                     $content = $this->processCssContent($content, $targetUrl, $cacheKey);
+                }elseif (strpos($cleanedContentType, 'application/json') !== false) {
+                    $content = (string) $content;
+                    $this->cache->set($cacheKey, [
+                        'content' => $content,
+                        'content_type' => $cleanedContentType
+                    ]);
                 }
+
             } else {
                 if (strpos($cleanedContentType, 'image/') === 0 && $this->cacheImages) {
                     $this->cacheImageContent($response, $content, $cacheKey);
