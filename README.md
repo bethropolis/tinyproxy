@@ -12,8 +12,10 @@ screenshots:
 
 1. Clone this repository to your web server:
 
-```
+```sh
 git clone https://github.com/bethropolis/tinyproxy.git
+
+cd tinyproxy
 ```
 
 2. Install the required dependencies using Composer:
