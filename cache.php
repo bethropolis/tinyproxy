@@ -4,11 +4,14 @@ class Cache
 {
     private $cacheDirectory;
     private $cacheDuration;
+    private $cachableTypes;
 
     public function __construct()
     {
         $this->cacheDirectory = CACHE_DIRECTORY;
         $this->cacheDuration = CACHE_DURATION;
+        $this->cachableTypes = CACHABLE_TYPES;
+
     }
 
     public function has($key)
@@ -29,6 +32,10 @@ class Cache
     public function set($key, $content)
     {
         if (!$this->isCacheEnabled()) return;
+
+        if (!in_array($content['content_type'], $this->cachableTypes)) {
+            return;
+        }
 
         $content = json_encode($content);
         $filePath = $this->getFilePath($key);

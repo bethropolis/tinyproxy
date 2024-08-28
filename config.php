@@ -13,6 +13,13 @@ if(!defined("PROXY_ALLOWED_ORIGINS"))  define("PROXY_ALLOWED_ORIGINS", ['*']);
 
 if(!defined('PROXY_USE_CSP'))  define('PROXY_USE_CSP', true);
 
+if (!defined('TEXT_TYPES'))  define('TEXT_TYPES', [
+    'text/javascript',
+    'text/css',
+    'text/html',
+    'application/json',
+    'text/plain'
+]);
 
 // proxy url
 if (!defined('PROXY_URL'))  define('PROXY_URL', $protocol . '://' . PROXY_HOST);
@@ -42,7 +49,11 @@ if (!defined('CACHABLE_TYPES'))  define('CACHABLE_TYPES', [
     'text/css',
     'text/html',
     'application/json',
-    'text/plain'
+    'text/plain',
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/svg+xml'
 ]);
 
 if(!defined('CACHE_IMAGES'))  define('CACHE_IMAGES', true);
@@ -79,3 +90,6 @@ if(!defined("DEBUG_ENABLED"))  define("DEBUG_ENABLED", false);
 if(!defined("DEBUG_DIRECTORY"))  define("DEBUG_DIRECTORY", "log/");
 
 if(!defined("DEBUG_FILE"))  define("DEBUG_FILE", "debug.log.txt");
+
+// new headers
+if (!defined('PROXY_USER_AGENT'))  define('PROXY_USER_AGENT', 'Mozilla/5.0 (X11; Linux x86_64; rv:129.0) Gecko/20100101 Firefox/129.0');

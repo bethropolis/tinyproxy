@@ -22,5 +22,15 @@ class DebugLogger {
         self::logToFile($backtrace);
         echo "<pre>$backtrace</pre>";
     }
+    
+    public static function debug($fileName, ...$args) {
+        $timestamp = date("Y-m-d H:i:s");
+        $logMessage = "[" . $timestamp . "] " . implode(" ", $args) . "\n";
+        $filePath = DEBUG_DIRECTORY . $fileName;
+        if (!file_exists(DEBUG_DIRECTORY)) {
+            mkdir(DEBUG_DIRECTORY, 0777, true);
+        }
+        file_put_contents($filePath, $logMessage, FILE_APPEND);
+    }
 }
 

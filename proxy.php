@@ -15,17 +15,18 @@ class ProxyService
     private $cache;
     private $logger;
     private $cacheImages;
-    private $cachableTypes;
+    private $textTypes;
+    private $modify;
 
     public function __construct()
     {
-        $this->cachableTypes = CACHABLE_TYPES;
+        $this->textTypes = TEXT_TYPES;
         $this->cacheImages = CACHE_IMAGES;
         $this->allowedOrigins = PROXY_ALLOWED_ORIGINS;
         $this->currentHost = PROXY_HOST;
         $this->cache = new Cache();
         $this->logger = new Logger();
-        $this->modify = isset($_GET[MODIFY_CONTENT])? filter_var($_GET[MODIFY_CONTENT], FILTER_VALIDATE_BOOLEAN) : true;
+        $this->modify = isset($_GET[MODIFY_CONTENT]) ? filter_var($_GET[MODIFY_CONTENT], FILTER_VALIDATE_BOOLEAN) : true;
         // $this->cache->clearCache();
 
 
@@ -105,37 +106,70 @@ class ProxyService
     private function serveCachedContent($cacheKey)
     {
         $cachedData = $this->cache->get($cacheKey);
+        if ($cachedData === false) {
+            // Handle cache miss or error
+            http_response_code(404);
+            echo "Cache miss or error.";
+            return;
+        }
+    
         $cachedData = json_decode($cachedData, true);
+        if (json_last_error() !== JSON_ERROR_NONE || !isset($cachedData['content'], $cachedData['content_type'])) {
+            // Handle JSON decode error or missing keys
+            http_response_code(500);
+            echo "Invalid cache data.";
+            return;
+        }
+    
         $cachedContent = $cachedData['content'];
         $cachedContentType = $cachedData['content_type'];
         header("Content-Type: {$cachedContentType}");
-        if(strpos($cachedContentType, 'image/') === 0){
+    
+        if (strpos($cachedContentType, 'image/') === 0) {
             $cachedContent = base64_decode($cachedContent);
+            if ($cachedContent === false) {
+                // Handle base64 decode error
+                http_response_code(500);
+                echo "Invalid image data.";
+                return;
+            }
         }
-        print_r($cachedContent);
+    
+        echo $cachedContent;
     }
 
     private function fetchAndProcessContent($targetUrl, $cacheKey)
     {
         $client = new GuzzleHttp\Client();
         try {
-            $response = $client->get($targetUrl);
-            $contentType = $response->getHeaderLine('Content-Type');
+            $request = $client->get($targetUrl, [
+                'headers' => [
+                    'Referer' => $targetUrl ,
+                    'User-Agent' => PROXY_USER_AGENT
+                ]
+            ]);
+
+            $contentType = $request->getHeaderLine('Content-Type');
             header("Content-Type: {$contentType}");
-            $content = $response->getBody();
+            $content = $request->getBody();
+
 
             $contentTypeParts = explode(';', $contentType);
             $cleanedContentType = trim($contentTypeParts[0]);
 
-            if (in_array($cleanedContentType, $this->cachableTypes)) {
+            if (in_array($cleanedContentType, $this->textTypes)) {
                 if (strpos($cleanedContentType, 'text/html') !== false) {
                     $content = $this->processHtmlContent($content, $targetUrl, $cacheKey);
                 } elseif (strpos($cleanedContentType, 'text/css') !== false) {
                     $content = $this->processCssContent($content, $targetUrl, $cacheKey);
+                }else{
+                    $this->storeTextContent($content, $cacheKey, $cleanedContentType);
                 }
+
+                
             } else {
                 if (strpos($cleanedContentType, 'image/') === 0 && $this->cacheImages) {
-                    $this->cacheImageContent($response, $content, $cacheKey);
+                    $this->cacheImageContent($request, $content, $cacheKey);
                 }
 
                 header("Cache-Control: max-age=" . CACHE_MAX_AGE_HEADER);
@@ -177,16 +211,25 @@ class ProxyService
         return $modifiedCssContent;
     }
 
-    private function cacheImageContent($response, $content, $cacheKey)
+
+    private function storeTextContent($content, $cacheKey, $contentType)
     {
-        $contentLength = $response->getHeaderLine('Content-Length');
+        $this->cache->set($cacheKey, [
+            'content' => $content,
+            'content_type' => $contentType
+        ]);
+    }
+
+    private function cacheImageContent($request, $content, $cacheKey)
+    {
+        $contentLength = $request->getHeaderLine('Content-Length');
         $contentLengthBytes = intval($contentLength);
 
         if ($contentLengthBytes <= CACHE_MAX_SIZE) {
             $base64ImageData = base64_encode($content);
             $this->cache->set($cacheKey, [
                 'content' => $base64ImageData,
-                'content_type' => $response->getHeaderLine('Content-Type')
+                'content_type' => $request->getHeaderLine('Content-Type')
             ]);
         }
     }

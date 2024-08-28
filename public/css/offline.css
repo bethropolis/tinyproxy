@@ -1,0 +1,88 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+  overflow-y: hidden;
+}
+
+#ofbody {
+  display: flex;
+  height: 100dvh;
+}
+
+#ofnav {
+  flex: 1;
+  background-color: #f1f1f1;
+  overflow-y: auto;
+  border-right: 1px solid #ddd;
+  display: grid;
+  grid-template-rows: 50px 1fr;
+}
+
+#ofnav ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+#ofnav ul li {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  font-family: Arial, sans-serif;
+}
+
+#ofnav ul a {
+  text-decoration: none;
+  color: #333;
+}
+
+#ofnav ul a:hover {
+  color: #000;
+}
+
+#ofnav ul li.active {
+  background-color: #ddd;
+}
+
+#ofnav ul li.active a {
+  color: #000;
+}
+
+#ofnav ul li.active a:hover {
+  color: #000;
+}
+
+#ofnav a:visited {
+  color: #333;
+}
+
+#ofmain {
+  flex: 3;
+  display: flex;
+  justify-content: flex-start; /* Align content to the top */
+  align-items: center;
+  flex-direction: column;
+  overflow-y: auto; /* Ensure content can scroll */
+  padding-top: 10px; /* Optional: adds some space at the top */
+}
+
+#ofmain #content {
+  width: 100%;
+  max-width: 800px;
+  margin: 10px;
+  padding: 10px;
+  overflow-y: auto; /* Ensure the content area itself can scroll */
+  height: 100%; /* Take the full height available */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Align text to the top */
+}
+
+#ofmain code {
+  white-space: pre-wrap;
+  font-family: Arial, sans-serif;
+}
