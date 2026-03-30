@@ -1,0 +1,3 @@
+[2026-03-30 16:36:01] [info] Fetching URL {"url":"http:\/\/example.com"}
+[2026-03-30 16:36:11] [info] Cache hit for URL {"url":"http:\/\/example.com"}
+[2026-03-30 16:36:17] [info] Cache hit for URL {"url":"http:\/\/example.com"}
