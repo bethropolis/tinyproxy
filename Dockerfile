@@ -1,25 +1,40 @@
-# Use the official PHP 8.0 image as the base
-FROM php:8.0-apache
+# Use a modern PHP version
+FROM php:8.3-apache
 
-# Set the working directory to /var/www/html
+# Enable mod_rewrite
+RUN a2enmod rewrite
+
+# Change DocumentRoot to public directory
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Set the working directory
 WORKDIR /var/www/html
 
-# Copy your project files into the container
-COPY . .
-
-# Install Composer for managing dependencies
+# Install dependencies and extensions
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
-    && rm -rf /var/lib/apt/lists/* \
-    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+    libzip-dev \
+    && docker-php-ext-install zip \
+    && pecl install apcu \
+    && docker-php-ext-enable apcu \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies using Composer
-RUN composer install
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Enable Apache modules and configure the virtual host
-RUN a2enmod rewrite
-COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
+# Copy project files
+COPY . .
+
+# Install PHP dependencies
+RUN composer install --optimize-autoloader
+
+# Ensure proper permissions for the var directory
+RUN mkdir -p var/cache/rate_limit var/log \
+    && chown -R www-data:www-data var \
+    && chmod -R 775 var
 
 # Expose port 80
 EXPOSE 80

@@ -162,14 +162,26 @@ class HtmlModifier implements ModifierInterface
         $queryKey = $this->config->getString('PROXY_URL_QUERY_KEY', 'url');
         
         $topBar = <<<HTML
-<div style="background-color: #f0f0f0 !important; padding: 10px !important; text-align: center !important; z-index: 9999 !important; position: sticky !important; top: 0 !important; display: flex !important; gap: 10px !important; align-items: center !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;">
-    <form action="/" method="get" style="flex: 1 !important; display: flex !important; gap: 10px !important; margin: 0 !important;">
-        <input type="url" name="{$queryKey}" value="{$currentUrl}" placeholder="Enter URL..." style="flex: 1 !important; padding: 8px !important; border: 1px solid #ccc !important; border-radius: 4px !important;" required>
-        <button type="submit" style="padding: 8px 20px !important; background-color: #0070f3 !important; color: white !important; border: none !important; border-radius: 4px !important; cursor: pointer !important; font-weight: bold !important;">Go</button>
+<div id="tinyproxy-topbar" style="background: rgba(255, 255, 255, 0.95) !important; backdrop-filter: blur(10px) !important; -webkit-backdrop-filter: blur(10px) !important; padding: 12px 20px !important; z-index: 2147483647 !important; position: sticky !important; top: 0 !important; border-bottom: 1px solid rgba(0,0,0,0.1) !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;">
+    <form action="/" method="get" style="display: flex !important; max-width: 1200px !important; margin: 0 auto !important; gap: 12px !important; align-items: center !important;">
+        <a href="/" title="TinyProxy Home" style="display: flex !important; align-items: center !important; justify-content: center !important; width: 36px !important; height: 36px !important; background: #3b82f6 !important; color: white !important; border-radius: 8px !important; text-decoration: none !important;">
+            <svg style="width: 20px !important; height: 20px !important;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+        </a>
+        <div style="flex: 1 !important; position: relative !important;">
+            <input type="url" name="{$queryKey}" value="{$currentUrl}" placeholder="Enter URL to proxy..." style="width: 100% !important; padding: 10px 16px !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; font-size: 14px !important; color: #1e293b !important; background: #f8fafc !important; outline: none !important; box-sizing: border-box !important;" required>
+        </div>
+        <button type="submit" style="padding: 10px 20px !important; background: #0f172a !important; color: white !important; border: none !important; border-radius: 8px !important; font-size: 14px !important; font-weight: 500 !important; cursor: pointer !important; white-space: nowrap !important; transition: background 0.2s !important;">Go &rarr;</button>
     </form>
 </div>
 HTML;
 
-        return $topBar . $htmlContent;
+        // Insert right after <body> if present, otherwise prepend
+        if (stripos($htmlContent, '<body') !== false) {
+            $htmlContent = preg_replace('/(<body[^>]*>)/i', '$1' . "\n" . $topBar, $htmlContent, 1);
+        } else {
+            $htmlContent = $topBar . $htmlContent;
+        }
+
+        return $htmlContent;
     }
 }

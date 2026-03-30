@@ -16,17 +16,17 @@ class CachedContent
         private readonly int $statusCode = 200,
         private readonly array $headers = [],
         private readonly bool $compressed = false,
-        private readonly int $createdAt = 0,
+        int $createdAt = 0,
         private int $lastAccessedAt = 0,
         private int $accessCount = 0
     ) {
-        if ($this->createdAt === 0) {
-            $this->createdAt = time();
-        }
+        $this->createdAt = $createdAt === 0 ? time() : $createdAt;
         if ($this->lastAccessedAt === 0) {
             $this->lastAccessedAt = $this->createdAt;
         }
     }
+
+    private readonly int $createdAt;
 
     public function getContent(): string
     {

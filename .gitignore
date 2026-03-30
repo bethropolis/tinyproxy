@@ -6,9 +6,9 @@ composer.phar
 .env
 
 # Cache & Logs
-var/cache/
-var/logs/
-var/stats.json
+/var/
+/public/var/
+var/
 
 # Old paths (legacy)
 /cache/
