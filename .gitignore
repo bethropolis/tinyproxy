@@ -1,6 +1,31 @@
-composer.phar
+# Dependencies
 /vendor/
+composer.phar
+
+# Environment
+.env
+
+# Cache & Logs
+var/cache/
+var/logs/
+var/stats.json
+
+# Old paths (legacy)
 /cache/
 /images/
-log/debug.log.txt
-log/error.log.txt
+/log/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+.phpunit.result.cache
+.phpunit.cache/
